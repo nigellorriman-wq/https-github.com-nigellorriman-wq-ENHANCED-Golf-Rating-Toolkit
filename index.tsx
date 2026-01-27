@@ -238,8 +238,8 @@ The App is able to display the 'Accuracy Pattern' in realtime for Scratch and Bo
   },
    {
     title: "Stimping sloped greens",
-    color: "text-blue-400",
-    icon: <Gauge className="text-blue-400" />,
+    color: "text-lime-400",
+    icon: <Gauge className="text-lime-400" />,
     content: "While the best procedure is to find a level area on the green on which to stimp, when it is not possible to find a flat area to measure, refer to 'Course Rating Manual 9.Green Surface'. Find the most uniform area. Roll balls down and then up. Enter the averaged values into the App and it will calculate the corrected speed and contour category based on those values. Refer to the 'Green Surface Rating Table' to determine the rating."
   },
   {
@@ -1197,8 +1197,8 @@ const App: React.FC = () => {
               <p className="text-slate-400 text-[11px] font-medium text-center max-w-[220px]">Green mapping and Effective Green Diameter</p>
             </button>
             <button onClick={() => { setViewingRecord(null); setView('stimp'); }} className="bg-slate-900 border border-white/5 rounded-[2.5rem] p-10 flex flex-col items-center justify-center shadow-2xl active:scale-95 transition-all">
-              <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-6 shadow-xl border border-blue-500/20"><Gauge size={28} className="text-blue-500" /></div>
-              <h2 className="text-2xl font-bold mb-2 uppercase text-blue-400">Stimp Slopes</h2>
+              <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-6 shadow-xl border border-blue-500/20"><Gauge size={28} className="text-lime-500" /></div>
+              <h2 className="text-2xl font-bold mb-2 uppercase text-lime-400">Stimp Slopes</h2>
               <p className="text-slate-400 text-[11px] font-medium text-center max-w-[220px]">Speed correction for sloping greens</p>
             </button>
             <button onClick={() => setView('manual')} className="mt-2 bg-slate-800/50 border border-white/10 rounded-[1.8rem] py-6 flex items-center justify-center gap-4 active:bg-slate-700 transition-colors">
