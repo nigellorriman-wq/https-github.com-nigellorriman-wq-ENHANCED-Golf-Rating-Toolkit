@@ -1,0 +1,7 @@
+{
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "name": "Scottish Golf Rating Toolkit ALPHA",
+  "description": "Premium two-function tool for tracking distance and mapping greens. Version ALPHA."
+}
