@@ -38,8 +38,8 @@ import {
 type AppView = 'landing' | 'track' | 'green' | 'manual' | 'stimp';
 type UnitSystem = 'Yards' | 'Metres';
 type FontSize = 'small' | 'medium' | 'large';
-type RatingGender = 'Men' | 'Women'; // New type for gender selection
-type TrackProfileView = 'Rater\'s Walk' | 'Scratch' | 'Bogey'; // New type for track record viewing
+type RatingGender = 'Men' | 'Women'; 
+type TrackProfileView = 'Rater\'s Walk' | 'Scratch' | 'Bogey'; 
 type OvalMode = 'off' | 'scratch' | 'bogey';
 
 interface GeoPoint {
@@ -52,7 +52,6 @@ interface GeoPoint {
   type?: 'green' | 'bunker';
 }
 
-// New interface for pivot records with type information
 interface PivotRecord {
   point: GeoPoint;
   type: 'common' | 'scratch_cut' | 'bogoy_round';
@@ -62,28 +61,26 @@ interface SavedRecord {
   id: string;
   type: 'Track' | 'Green';
   date: number;
-  primaryValue: string; // For Track: "S: 380yd / B: 405yd", for Green: "Area"
-  secondaryValue?: string; // For Track: "Elev: S: 10ft / B: 12ft", for Green: "Bunker %"
-  egdValue?: string; // Only for Green type
-  points: GeoPoint[]; // For Green: green perimeter points, For Track: Rater's physical path
-  pivots?: GeoPoint[]; // Deprecated for Track, use pivotPoints
+  primaryValue: string; 
+  secondaryValue?: string; 
+  egdValue?: string; 
+  points: GeoPoint[]; 
+  pivots?: GeoPoint[]; 
   holeNumber?: number;
-
-  // Track-specific fields (new for multi-profile)
-  raterPathPoints?: GeoPoint[]; // The full physical GPS trace of the rater (replaces `points` for 'Track' type)
-  pivotPoints?: PivotRecord[]; // Explicitly typed pivots for 'Track' type
-  genderRated?: RatingGender; // The selected gender for the rating
-  effectivePaths?: { // The calculated effective paths for each profile
+  raterPathPoints?: GeoPoint[]; 
+  pivotPoints?: PivotRecord[]; 
+  genderRated?: RatingGender; 
+  effectivePaths?: { 
     scratch: GeoPoint[];
     bogey: GeoPoint[];
   };
-  effectiveDistances?: { // The final calculated total distances
+  effectiveDistances?: { 
     scratch: number;
     bogey: number;
   };
-  effectiveElevations?: { // The final calculated total elevations
-    scratch: number; // Changed to number
-    bogey: number; // Changed to number
+  effectiveElevations?: { 
+    scratch: number; 
+    bogey: number; 
   };
 }
 
@@ -118,7 +115,6 @@ const interpolateSpread = (distYards: number, gender: RatingGender) => {
   let sw: number | null = null, sd: number | null = null;
   let bw: number | null = null, bd: number | null = null;
 
-  // Scratch logic
   const lastS = table[table.length - 1];
   if (distYards <= lastS.dist) {
     for (let i = 0; i < table.length - 1; i++) {
@@ -134,11 +130,10 @@ const interpolateSpread = (distYards: number, gender: RatingGender) => {
     sw = lastS.sw; sd = lastS.sd;
   }
 
-  // Bogey logic
   const bogeyRows = table.filter(r => r.bw !== null);
   const lastB = bogeyRows[bogeyRows.length - 1];
   if (distYards <= lastB.dist) {
-    for (let i = 0; i < bogeyRows.length - 1; i++) {
+    for (let i = 0; i < (bogeyRows[i + 1] === undefined ? 0 : bogeyRows.length - 1); i++) {
       const s = bogeyRows[i], e = bogeyRows[i + 1];
       if (distYards >= s.dist && distYards <= e.dist) {
         const t = (distYards - s.dist) / (e.dist - s.dist);
@@ -160,11 +155,10 @@ const USER_MANUAL = [
     icon: <BookOpen className="text-white" />,
     content: (
       <>
-        Scottish Golf <span className="text-blue-500 font-black">Course Rating Toolkit</span> is designed to provide an alternative to roadwheels and barometers when rating a course. Ensure 'High Accuracy' location is enabled on your device. For best results, keep the app active and in-hand while walking. The App is web-based, so an internet connection is required to launch. A trick is to open the app where you have Internet, open the 'Distance Tracker' section and zoom out so you see the whole of the course you are working on. This should cache the images or maps locally, so you can still see them when Internet is lost. But if you lose connection the App will still work, though you may not see the background mapping.
+        Scottish Golf <span className="text-blue-500 font-black">Course Rating Toolkit</span> is designed to provide an alternative to roadwheels and barometers when rating a course. Ensure 'High Accuracy' location is enabled on your device. For best results, keep the app active and in-hand while walking. The App is web-based, so an internet connection is required to launch. A trick is to open the app where you have Internet, open the 'Distance Tracker' section and zoom out so you see the whole of the course you are working on. This should cache the images or maps locally, so you can still see them when Internet is lost. But if you lose connection the App still works, though you may not see the background mapping.
       </>
     )
   },
-   
   {
     title: "Location services",
     color: "text-rose-500",
@@ -175,7 +169,6 @@ const USER_MANUAL = [
       </>
     )
   },
-  
   {
     title: "Distance Tracker",
     color: "text-blue-400",
@@ -183,28 +176,18 @@ const USER_MANUAL = [
     content: (
       <>
 <p>This menu calculates distances and altitude change from tee to each landing zone for Scratch and Bogey players (the players). In addition, it displays the effective playing length of dogleg holes.</p>
-
 <p>On the home screen you can select whether you will be rating for Men or Women. This selection has no impact on the results, but will mark the generated hole track files for archiving and re-loading.</p>
-
 <p>Stand on the tee you are using to measure from and Tap 'Start Track' when you are ready to start tracking the distance.</p>
-
 <p>Horizontal and vertical distances are displayed in real-time. If you made a mistake and began at the wrong place, select “Stop Track” to start over.</p>
-
 <p>Two distances are shown S: for scratch and B: for bogey. The two will only differ if the line that each takes on a hole are different. On dogleg holes, a scratch golfer may be able to cut the corner, so their pivot point will be different to the bogey player.</p>
-
 <p>When you reach the first pivot, select ‘pivot’ and choose which (or both) players it refers to. If it does not apply to both, then from this point you will see two track lines and distances – one through the pivot and the other in a straight line from the tee. As you progress down the hole you can select pivots for each player.</p>
-
 <p>Both players’ tracks will end at the front of the green when you hit “Stop Track” and you can note down the two distances and the level difference between tee and green.</p>
-
-<p>As soon as you press “Stop Track” no more lines will be drawn, the location pin will continue to follow you and the track record for that hole will appear at the bottom of the Home screen for export or review.</p>
-
+<p>As soon as you press “Stop Track” no more lines will be drawn, the location pin continue to follow you and the track record for that hole will appear at the bottom of the Home screen for export or review.</p>
 <p>Notes: You can create a maximum of 3 pivots for each player on each hole. Total distance and elevation change are calculated from the start through all pivots to your current position. GNSS (GPS) is really only accurate to 2m at best, so keep an eye on the Horiz. value and the indicative coloured circle around the current location. It shows you the absolute positioning accuracy of the GPS, however, don't confuse this with the accuracy of distance measurements. They will always be better than this as they are relative to each other.</p>
-
 <p>If your device does not have a barometer sensor (see the elevation method displayed below the elevation value), then you may still need to use a barometer. Refer to section on “Sensor Diagnostics”, below for details.</p>
       </>
     ) 
   },
- 
   {
     title: "Accuracy Pattern",
     color: "text-orange-400",
@@ -212,12 +195,9 @@ const USER_MANUAL = [
     content: (
       <>
 The App is able to display the 'Accuracy Pattern' in realtime for Scratch and Bogey players. This display is toggled with the button to the left of the units button and cycles between 'Off' (default), <span className="text-emerald-500 font-black">Scratch</span> or <span className="text-yellow-500 font-black">Bogey.</span> This function allows the Rater to see on the background satellite imagery the proximity of obstacles around the target. To use this facility properly, mark every shot as a pivot, so that the next shot length is used.
-      
       </>
     )
-    
-      },
- 
+  },
   {
     title: "Green Mapper",
     color: "text-emerald-400",
@@ -236,11 +216,11 @@ The App is able to display the 'Accuracy Pattern' in realtime for Scratch and Bo
     icon: <Diameter className="text-emerald-400" />,
     content: "Effective Green Diameter (EGD) is required when measuring a green. When a green is mapped and closed the EGD will automatically be displayed, together with the raw data and dashed lines showing the dimensions used. Oddly-shaped greens are more tricky, but by using a \"concave hull check\" it should at least recognise an L-shaped green. In these circumstances, EGD should show the raw dimension data to allow the rater to make their weighting adjustments - as per Course Rating System Manual (Jan 2024 Section 13D [two portions]). In those cases when a green cannot be automatically identified by the App, it will draw a curved line right up the centre of the green with perpendicular widths at 0.25, 0.50 and 0.75 of the green depth. The raw data will be shown for manual analysis."
   },
-   {
+  {
     title: "Stimping sloped greens",
     color: "text-lime-400",
     icon: <Gauge className="text-lime-400" />,
-    content: "While the best procedure is to find a level area on the green on which to stimp, when it is not possible to find a flat area to measure, refer to 'Course Rating Manual 9.Green Surface'. Find the most uniform area. Roll balls down and then up. Enter the averaged values into the App and it will calculate the corrected speed and contour category based on those values. Refer to the 'Green Surface Rating Table' to determine the rating."
+    content: "While the best procedure is to find a flat area on the green on which to stimp, when it is not possible to find a flat area to measure, refer to 'Course Rating Manual 9.Green Surface'. Find the most uniform area. Roll balls down and then up. Enter the averaged values into the App and it will calculate the corrected speed and contour category based on those values. Refer to the 'Green Surface Rating Table' to determine the rating."
   },
   {
     title: "Sensor Diagnostics",
@@ -289,7 +269,7 @@ const calculatePathDistanceAndElevation = (path: GeoPoint[], distMult: number, e
     }
     const startAlt = path[0]?.alt || 0;
     const endAlt = path[path.length - 1]?.alt || 0;
-    netElevation = (endAlt - startAlt); // Raw elevation difference
+    netElevation = (endAlt - startAlt);
   }
   return {
     distance: distance * distMult,
@@ -325,7 +305,7 @@ const getConvexHull = (points: GeoPoint[]): GeoPoint[] => {
   const upper = [];
   for (let i = pts.length - 1; i >= 0; i--) {
     const p = pts[i];
-    while (upper.length >= 2 && cp(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop();
+    while (upper.length >= 2 && upper.length >= 2 && cp(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop();
     upper.push(p);
   }
   lower.pop(); upper.pop();
@@ -360,9 +340,9 @@ const isPointInPolygon = (p: {x: number, y: number}, polygon: {x: number, y: num
 };
 
 const getAccuracyColor = (accuracy: number): string => {
-  if (accuracy < 2) return 'rgba(34, 197, 94, 0.4)'; // Green
-  if (accuracy <= 5) return 'rgba(234, 179, 8, 0.4)'; // Yellow
-  return 'rgba(239, 68, 68, 0.4)'; // Red
+  if (accuracy < 2) return 'rgba(34, 197, 94, 0.4)'; 
+  if (accuracy <= 5) return 'rgba(234, 179, 8, 0.4)'; 
+  return 'rgba(239, 68, 68, 0.4)'; 
 };
 
 const getAccuracyTextColor = (accuracy: number): string => {
@@ -371,22 +351,18 @@ const getAccuracyTextColor = (accuracy: number): string => {
   return 'text-rose-500';
 };
 
-// This function is now used to get the method string, not the color class for the value
 const getVerticalMethod = (accuracy: number | null, alt: number | null): string => {
-  if (accuracy !== null) { // altAccuracy is available, implies higher precision
-    return 'Barometric'; // As per manual: Blue Light (Barometric): Highest precision elevation
-  } else if (alt !== null) { // alt is available, but altAccuracy is null, implies standard 3D GNSS
-    return 'GNSS 3D'; // As per manual: Emerald Light (GNSS 3D): Standard GPS altitude
-  }
-  return 'Vertical (Searching)'; // No lock
+  if (accuracy !== null) return 'Barometric'; 
+  else if (alt !== null) return 'GNSS 3D'; 
+  return 'Vertical (Searching)'; 
 };
 
 const getBunkerPercentageColor = (bunkerPct: number | undefined): string => {
-  if (bunkerPct === undefined) return 'text-white/40'; // Neutral for undefined
-  if (bunkerPct <= 25) return 'text-emerald-400'; // 0% to 25%
-  if (bunkerPct > 25 && bunkerPct <= 50) return 'text-yellow-400'; // 25.01% to 50%
-  if (bunkerPct > 50 && bunkerPct <= 75) return 'text-orange-400'; // 50.01% to 75%
-  return 'text-white'; // > 75%
+  if (bunkerPct === undefined) return 'text-white/40';
+  if (bunkerPct <= 25) return 'text-emerald-400';
+  if (bunkerPct > 25 && bunkerPct <= 50) return 'text-yellow-400';
+  if (bunkerPct > 50 && bunkerPct <= 75) return 'text-orange-400';
+  return 'text-white';
 };
 
 const getEGDAnalysis = (points: GeoPoint[], forceSimpleAverage: boolean = false) => {
@@ -421,13 +397,11 @@ const getEGDAnalysis = (points: GeoPoint[], forceSimpleAverage: boolean = false)
   const ny = dx / mag;
   const polyPoints = [...points, points[0]];
 
-  // Standard Midpoint Width
   const midX = (xA + xB) / 2;
   const midY = (yA + yB) / 2;
   const midW = getWidthAtAxisPoint(midX, midY, nx, ny, polyPoints, toX, toY);
   const widthMeters = midW ? (midW.maxT - midW.minT) : 0;
 
-  // Multi-Width Check (25% and 75% along the axis)
   const q1X = xA + (xB - xA) * 0.25;
   const q1Y = yA + (yB - yA) * 0.25;
   const q3X = xA + (xB - xA) * 0.75;
@@ -439,7 +413,6 @@ const getEGDAnalysis = (points: GeoPoint[], forceSimpleAverage: boolean = false)
   const W_yds = widthMeters * 1.09361;
   const ratio = W_yds === 0 ? 0 : L_yds / W_yds;
 
-  // Determine Method
   let egd_yds = 0;
   let method = "Average (L+W)/2";
   let isInconsistent = false;
@@ -490,7 +463,6 @@ const getEGDAnalysis = (points: GeoPoint[], forceSimpleAverage: boolean = false)
   };
 };
 
-/** --- NEW ANOMALOUS GREEN ANALYSIS CODE --- **/
 const performAnomalousAnalysis = (points: GeoPoint[], pA: GeoPoint, pB: GeoPoint) => {
   const R = 6371e3;
   const latRef = pA.lat * Math.PI / 180;
@@ -514,7 +486,6 @@ const performAnomalousAnalysis = (points: GeoPoint[], pA: GeoPoint, pB: GeoPoint
   const ny = dx / mag;
   const polyPoints = [...points, points[0]];
 
-  // 1. Skeleton Generation (The Curved Spine / Medial Axis)
   const steps = 15;
   const spinePoints: GeoPoint[] = [];
   
@@ -522,23 +493,18 @@ const performAnomalousAnalysis = (points: GeoPoint[], pA: GeoPoint, pB: GeoPoint
     const t = i / steps;
     const curX = xA + dx * t;
     const curY = yA + dy * t;
-    
-    // Find cross-section intersections at this interval
     const res = getWidthAtAxisPoint(curX, curY, nx, ny, polyPoints, toX, toY);
     if (res) {
-      // Find the center point between the nearest left and right perimeters (equidistant)
       const midT = (res.minT + res.maxT) / 2;
       spinePoints.push(fromXY(curX + nx * midT, curY + ny * midT));
     }
   }
 
-  // Calculate curved spine length
   let curvedLen = 0;
   for (let i = 0; i < spinePoints.length - 1; i++) {
     curvedLen += calculateDistance(spinePoints[i], spinePoints[i + 1]);
   }
 
-  // 2. Perpendicular Sampling at milestones: 1/4, 1/2, 3/4
   const milestones = [0.25, 0.5, 0.75];
   const milestoneColors = ["#fb923c", "#facc15", "#f472b6"];
   const sampledWidths: { w: number, p1: GeoPoint, p2: GeoPoint, label: string, color: string }[] = [];
@@ -561,12 +527,10 @@ const performAnomalousAnalysis = (points: GeoPoint[], pA: GeoPoint, pB: GeoPoint
 
   const curvedLenYds = curvedLen * 1.09361;
   const straightLenYds = mag * 1.09361;
-
-  // Manual Req Trigger Logic based on curvature ratio
   const isSignificantlyCurved = curvedLenYds > straightLenYds * 1.15;
 
   return {
-    method: "Anomalous Green Detected",
+    method: "Inconsistent Shape",
     isAnomalous: true,
     isManualReq: isSignificantlyCurved,
     curvedLength: curvedLenYds,
@@ -629,7 +593,6 @@ const analyzeGreenShape = (points: GeoPoint[], concavityThreshold: number = 0.82
       if (!isPointInPolygon({ x: s2MidX, y: s2MidY }, polyCoords)) hasAnomaly = true;
     }
 
-    // --- TRIGGER ANOMALOUS GREEN ANALYSIS IF ANOMALY DETECTED ---
     let anomalousResult = null;
     if (hasAnomaly) {
       anomalousResult = performAnomalousAnalysis(points, basic.pA, basic.pB);
@@ -641,19 +604,18 @@ const analyzeGreenShape = (points: GeoPoint[], concavityThreshold: number = 0.82
       method: anomalousResult ? anomalousResult.method : "Two portions",
       hasAnomaly,
       anomalousResult,
+      isAnomalous: !!anomalousResult,
       s1, 
       s2 
     };
   }
 
-  return { ...basic, isLShape: false, hasAnomaly: false, s1: null, s2: null };
+  return { ...basic, isLShape: false, hasAnomaly: false, isAnomalous: false, s1: null, s2: null };
 };
 
-
-// --- NEW UTILITY: Generate interpolated line points ---
 const getInterpolatedLine = (p1: GeoPoint, p2: GeoPoint, numSegments: number = 5): GeoPoint[] => {
   const points: GeoPoint[] = [p1];
-  if (p1.timestamp === p2.timestamp) return points; // Handle same point
+  if (p1.timestamp === p2.timestamp) return points;
 
   for (let i = 1; i < numSegments; i++) {
     const t = i / numSegments;
@@ -661,17 +623,15 @@ const getInterpolatedLine = (p1: GeoPoint, p2: GeoPoint, numSegments: number = 5
       lat: p1.lat + (p2.lat - p1.lat) * t,
       lng: p1.lng + (p2.lng - p1.lng) * t,
       alt: p1.alt !== null && p2.alt !== null ? p1.alt + (p2.alt - p1.alt) * t : null,
-      accuracy: (p1.accuracy + p2.accuracy) / 2, // Simple average
+      accuracy: (p1.accuracy + p2.accuracy) / 2,
       altAccuracy: p1.altAccuracy !== null && p2.altAccuracy !== null ? (p1.altAccuracy + p2.altAccuracy) / 2 : null,
-      timestamp: p1.timestamp + (p2.timestamp - p1.timestamp) * t // Interpolate timestamp too
+      timestamp: p1.timestamp + (p2.timestamp - p1.timestamp) * t
     });
   }
   points.push(p2);
   return points;
 };
 
-
-// --- NEW UTILITY: Calculate Effective Paths and Metrics ---
 const calculateEffectivePathsAndMetrics = (
   raterPathPoints: GeoPoint[],
   pivotRecords: PivotRecord[],
@@ -690,7 +650,6 @@ const calculateEffectivePathsAndMetrics = (
   const startPoint = raterPathPoints[0];
   const endPoint = raterPathPoints[raterPathPoints.length - 1];
 
-  // --- 1. Determine effective anchors for each path ---
   const getAnchors = (forScratch: boolean): GeoPoint[] => {
     let anchors: GeoPoint[] = [startPoint];
     for (const pivot of sortedPivots) {
@@ -698,7 +657,7 @@ const calculateEffectivePathsAndMetrics = (
         if (pivot.type === 'common' || pivot.type === 'scratch_cut') {
           anchors.push(pivot.point);
         }
-      } else { // for Bogey
+      } else { 
         if (pivot.type === 'common' || pivot.type === 'bogoy_round') {
           anchors.push(pivot.point);
         }
@@ -713,7 +672,6 @@ const calculateEffectivePathsAndMetrics = (
   const scratchAnchors = getAnchors(true);
   const bogeyAnchors = getAnchors(false);
 
-  // --- 2. Build the full path for each profile based on anchors ---
   const buildFinalPath = (anchors: GeoPoint[], isScratchPath: boolean): GeoPoint[] => {
     const path: GeoPoint[] = [];
     if (anchors.length === 0) return [];
@@ -734,7 +692,7 @@ const calculateEffectivePathsAndMetrics = (
           const p2IsScratchCutPivot = sortedPivots.some(p => p.point.timestamp === p2.timestamp && p.type === 'scratch_cut');
           const skippedBogoyRoundPivots = sortedPivots.filter(p => p.type === 'bogoy_round' && segmentInRaterPath.some(rp => rp.timestamp === p.point.timestamp));
           if (p2IsScratchCutPivot || skippedBogoyRoundPivots.length > 0) shouldBeStraight = true;
-        } else { // Bogey path
+        } else { 
           const skippedScratchCutPivots = sortedPivots.filter(p => p.type === 'scratch_cut' && segmentInRaterPath.some(rp => rp.timestamp === p.point.timestamp));
           if (skippedScratchCutPivots.length > 0) shouldBeStraight = true;
         }
@@ -759,18 +717,9 @@ const calculateEffectivePathsAndMetrics = (
   const bogeyMetrics = calculatePathDistanceAndElevation(finalBogeyPath, distMult, elevMult);
 
   return {
-    effectivePaths: {
-      scratch: finalScratchPath,
-      bogey: finalBogeyPath,
-    },
-    effectiveDistances: {
-      scratch: scratchMetrics.distance,
-      bogey: bogeyMetrics.distance,
-    },
-    effectiveElevations: {
-      scratch: scratchMetrics.elevation,
-      bogey: bogeyMetrics.elevation,
-    },
+    effectivePaths: { scratch: finalScratchPath, bogey: finalBogeyPath },
+    effectiveDistances: { scratch: scratchMetrics.distance, bogey: bogeyMetrics.distance },
+    effectiveElevations: { scratch: scratchMetrics.elevation, bogey: bogeyMetrics.elevation },
   };
 };
 
@@ -817,16 +766,17 @@ const AccuracyOvals: React.FC<{ pos: GeoPoint | null, anchor: GeoPoint | null, g
 };
 
 const MapController: React.FC<{ 
-  pos: GeoPoint | null, active: boolean, mapPoints: GeoPoint[], completed: boolean, viewingRecord: SavedRecord | null, mode: AppView
-}> = ({ pos, active, mapPoints, completed, viewingRecord, mode }) => {
+  pos: GeoPoint | null, active: boolean, mapPoints: GeoPoint[], completed: boolean, viewingRecord: SavedRecord | null, mode: AppView, trkPoints: GeoPoint[]
+}> = ({ pos, active, mapPoints, completed, viewingRecord, mode, trkPoints }) => {
   const map = useMap();
   const isUserInteracting = useRef(false);
   const lastViewId = useRef<string | null>(null);
   const hasInitialLock = useRef(false);
 
   useMapEvents({
-    movestart: () => { isUserInteracting.current = true; },
-    zoomstart: () => { isUserInteracting.current = true; }
+    dragstart: () => { isUserInteracting.current = true; },
+    zoomstart: () => { isUserInteracting.current = true; },
+    touchstart: () => { isUserInteracting.current = true; }
   });
 
   useEffect(() => {
@@ -843,20 +793,23 @@ const MapController: React.FC<{
       const pts = viewingRecord.type === 'Green' ? viewingRecord.points : viewingRecord.raterPathPoints;
       if (pts && pts.length > 0) {
         const bounds = L.latLngBounds(pts.map(p => [p.lat, p.lng]));
-        map.fitBounds(bounds, { padding: [40, 40], paddingBottomRight: [40, 240], animate: true });
+        map.fitBounds(bounds, { padding: [40, 40], paddingBottomRight: [40, 280], animate: true });
       }
-    } else if (completed && mapPoints.length > 2) {
+    } else if (completed && mode === 'green' && mapPoints.length > 2) {
       const bounds = L.latLngBounds(mapPoints.map(p => [p.lat, p.lng]));
-      map.fitBounds(bounds, { padding: [40, 40], paddingBottomRight: [40, 240], animate: true });
+      map.fitBounds(bounds, { padding: [40, 40], paddingBottomRight: [40, 280], animate: true });
+    } else if (!active && mode === 'track' && trkPoints.length > 1) {
+      const bounds = L.latLngBounds(trkPoints.map(p => [p.lat, p.lng]));
+      map.fitBounds(bounds, { padding: [40, 40], paddingBottomRight: [40, 280], animate: true });
     } else if (pos) {
       if (!hasInitialLock.current) {
         map.setView([pos.lat, pos.lng], 19, { animate: true });
         hasInitialLock.current = true;
       } else if (active) {
-        map.setView([pos.lat, pos.lng], 19, { animate: true });
+        map.setView([pos.lat, pos.lng], 19, { animate: false });
       }
     }
-  }, [pos, active, map, completed, mapPoints, viewingRecord]);
+  }, [pos, active, map, completed, mapPoints, viewingRecord, mode, trkPoints]);
 
   return null;
 };
@@ -1075,8 +1028,19 @@ const App: React.FC = () => {
     }
     if (mapCompleted || (viewingRecord && viewingRecord.type === 'Green')) perimeter += calculateDistance(pts[pts.length-1], pts[0]);
     const shape = (pts.length >= 3 && (mapCompleted || viewingRecord)) ? analyzeGreenShape(pts, CONCAVITY_FIXED) : null;
-    return { area: calculateArea(pts), perimeter, bunkerPct: perimeter > 0 ? Math.round((bunkerLength / perimeter) * 100) : 0, shape };
-  }, [mapPoints, mapCompleted, viewingRecord]);
+    
+    let egdDisplay = "--";
+    if (shape) {
+      const s = shape as any;
+      const m = units === 'Yards' ? 1 : (1 / 1.09361);
+      if (s.isAnomalous) egdDisplay = "---";
+      else if (s.anomalousResult && s.anomalousResult.isManualReq) egdDisplay = "MANUAL";
+      else if (s.isLShape) egdDisplay = `${(s.s1?.egd * m).toFixed(1)}/${(s.s2?.egd * m).toFixed(1)}`;
+      else egdDisplay = `${(s.egd * m).toFixed(1)}`;
+    }
+    
+    return { area: calculateArea(pts), perimeter, bunkerPct: perimeter > 0 ? Math.round((bunkerLength / perimeter) * 100) : 0, shape, egdDisplay };
+  }, [mapPoints, mapCompleted, viewingRecord, units]);
 
   const handleFinalizeGreen = useCallback(() => {
     if (mapPoints.length < 3) return;
@@ -1084,10 +1048,13 @@ const App: React.FC = () => {
     const areaVal = Math.round(calculateArea(mapPoints) * (units === 'Yards' ? 1.196 : 1));
     let egdStr = "--";
     const s = shape as any;
+    const m = units === 'Yards' ? 1 : (1 / 1.09361);
+    const uLabel = units === 'Yards' ? 'yd' : 'm';
     if (s) {
-      if (s.anomalousResult && s.anomalousResult.isManualReq) egdStr = "MANUAL REQ";
-      else if (s.isLShape) egdStr = `${s.s1?.egd} / ${s.s2?.egd} yd`;
-      else egdStr = `${s.egd} yd`;
+      if (s.isAnomalous) egdStr = "---";
+      else if (s.anomalousResult && s.anomalousResult.isManualReq) egdStr = "MANUAL REQ";
+      else if (s.isLShape) egdStr = `${(s.s1?.egd * m).toFixed(1)} / ${(s.s2?.egd * m).toFixed(1)} ${uLabel}`;
+      else egdStr = `${(s.egd * m).toFixed(1)} ${uLabel}`;
     }
     saveRecord({ type: 'Green', primaryValue: `${areaVal}${units === 'Yards' ? 'yd²' : 'm²'}`, secondaryValue: `Bunker: ${analysis?.bunkerPct}%`, egdValue: egdStr, points: mapPoints, holeNumber: holeNum });
     setMapActive(false); setMapCompleted(true);
@@ -1108,16 +1075,42 @@ const App: React.FC = () => {
   const elevMult = units === 'Yards' ? 3.28084 : 1.0;
 
   const effectiveMetrics = useMemo(() => {
+    const currentRaterPath = [...trkPoints, ...(trkActive && pos ? [pos] : [])].filter(Boolean) as GeoPoint[];
+    const pivs = viewingRecord ? (viewingRecord.pivotPoints || []) : currentPivots;
+    const targetPoint = viewingRecord ? (viewingRecord.raterPathPoints ? viewingRecord.raterPathPoints[viewingRecord.raterPathPoints.length - 1] : null) : (trkActive ? pos : (trkPoints.length > 0 ? trkPoints[trkPoints.length-1] : null));
+
+    const sectorScratch = (() => {
+      if (!targetPoint) return null;
+      const filtered = pivs.filter(p => p.type === 'common' || p.type === 'scratch_cut').sort((a, b) => b.point.timestamp - a.point.timestamp);
+      return filtered.length > 0 ? calculateDistance(filtered[0].point, targetPoint) * distMult : null;
+    })();
+    const sectorBogey = (() => {
+      if (!targetPoint) return null;
+      const filtered = pivs.filter(p => p.type === 'common' || p.type === 'bogoy_round').sort((a, b) => b.point.timestamp - a.point.timestamp);
+      return filtered.length > 0 ? calculateDistance(filtered[0].point, targetPoint) * distMult : null;
+    })();
+
     if (viewingRecord && viewingRecord.type === 'Track' && viewingRecord.effectiveDistances) {
       const raterPathMetrics = calculatePathDistanceAndElevation(viewingRecord.raterPathPoints || [], distMult, elevMult);
-      return { distRater: raterPathMetrics.distance, elevRater: raterPathMetrics.elevation, distScratch: viewingRecord.effectiveDistances.scratch, elevScratch: viewingRecord.effectiveElevations.scratch, distBogey: viewingRecord.effectiveDistances.bogey, elevBogey: viewingRecord.effectiveElevations.bogey, effectivePaths: viewingRecord.effectivePaths };
+      return { distRater: raterPathMetrics.distance, elevRater: raterPathMetrics.elevation, distScratch: viewingRecord.effectiveDistances.scratch, elevScratch: viewingRecord.effectiveElevations.scratch, distBogey: viewingRecord.effectiveDistances.bogey, elevBogey: viewingRecord.effectiveElevations.bogey, effectivePaths: viewingRecord.effectivePaths, sectorScratch, sectorBogey };
     }
-    const currentRaterPath = [...trkPoints, ...(trkActive && pos ? [pos] : [])].filter(Boolean) as GeoPoint[];
-    if (currentRaterPath.length < 2) return { distRater: 0, elevRater: 0, distScratch: 0, elevScratch: 0, distBogey: 0, elevBogey: 0, effectivePaths: { scratch: [], bogey: [] } };
+
+    if (currentRaterPath.length < 2) return { distRater: 0, elevRater: 0, distScratch: 0, elevScratch: 0, distBogey: 0, elevBogey: 0, effectivePaths: { scratch: [], bogey: [] }, sectorScratch: null, sectorBogey: null };
+    
     const calculated = calculateEffectivePathsAndMetrics(currentRaterPath, currentPivots, distMult, elevMult);
     const raterPathMetrics = calculatePathDistanceAndElevation(currentRaterPath, distMult, elevMult);
-    return { distRater: raterPathMetrics.distance, elevRater: raterPathMetrics.elevation, distScratch: calculated.effectiveDistances.scratch, elevScratch: calculated.effectiveElevations.scratch, distBogey: calculated.effectiveDistances.bogey, elevBogey: calculated.effectiveElevations.bogey, effectivePaths: calculated.effectivePaths };
+    return { distRater: raterPathMetrics.distance, elevRater: raterPathMetrics.elevation, distScratch: calculated.effectiveDistances.scratch, elevScratch: calculated.effectiveElevations.scratch, distBogey: calculated.effectiveDistances.bogey, elevBogey: calculated.effectiveElevations.bogey, effectivePaths: calculated.effectivePaths, sectorScratch, sectorBogey };
   }, [trkPoints, currentPivots, trkActive, pos, viewingRecord, distMult, elevMult]);
+
+  const pathsDiffer = useMemo(() => {
+    const s = effectiveMetrics.effectivePaths.scratch;
+    const b = effectiveMetrics.effectivePaths.bogey;
+    if (s.length !== b.length) return true;
+    for (let i = 0; i < s.length; i++) {
+      if (s[i].lat !== b[i].lat || s[i].lng !== b[i].lng) return true;
+    }
+    return false;
+  }, [effectiveMetrics.effectivePaths]);
 
   const handleOpenRecord = (record: SavedRecord) => {
     setViewingRecord(record); if (record.holeNumber) setHoleNum(record.holeNumber);
@@ -1135,16 +1128,21 @@ const App: React.FC = () => {
     let kml = `<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Scottish Golf Export</name>`;
     history.forEach(item => {
       const coords = (item.type === 'Track' && item.raterPathPoints ? item.raterPathPoints : item.points).map(p => `${p.lng},${p.lat},${p.alt || 0}`).join(' ');
-      kml += `<Placemark><name>${item.type} - Hole ${item.holeNumber || '?'}</name><description>Hole:${item.holeNumber || '?'}</description>${item.type === 'Green' ? `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coords} ${item.points[0].lng},${item.points[0].lat},${item.points[0].alt || 0}</coordinates></LinearRing></outerBoundaryIs></Polygon>` : `<LineString><coordinates>${coords}</LineString></LineString>`}</Placemark>`;
+      kml += `<Placemark><name>${item.type} - Hole ${item.holeNumber || '?'}</name><description>Hole:${item.holeNumber || '?'}; Type: ${item.type}</description>${item.type === 'Green' ? `<Polygon><outerBoundaryIs><LinearRing><coordinates>${coords} ${item.points[0].lng},${item.points[0].lat},${item.points[0].alt || 0}</coordinates></LinearRing></outerBoundaryIs></Polygon>` : `<LineString><coordinates>${coords}</coordinates></LineString>`}</Placemark>`;
     });
     kml += `</Document></kml>`;
     const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'Export.kml'; a.click(); URL.revokeObjectURL(url);
+    const a = document.createElement('a');
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const ts = `${String(now.getFullYear()).slice(-2)}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+    a.href = url; a.download = `${ts}.kml`; a.click(); URL.revokeObjectURL(url);
   };
 
   const importKML = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
+    const fileName = file.name.replace(/\.[^/.]+$/, "");
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
@@ -1154,14 +1152,19 @@ const App: React.FC = () => {
       const newItems: SavedRecord[] = [];
       for (let i = 0; i < placemarks.length; i++) {
         const p = placemarks[i];
+        const nameStr = p.getElementsByTagName("name")[0]?.textContent || "";
         const coordsStr = p.getElementsByTagName("coordinates")[0]?.textContent || "";
         const descStr = p.getElementsByTagName("description")[0]?.textContent || "";
         let extractedHole = parseInt(descStr.match(/Hole:(\d+)/)?.[1] || "0");
         const points = coordsStr.trim().split(/\s+/).map(c => { const parts = c.split(',').map(Number); return { lat: parts[1], lng: parts[0], alt: parts[2] || 0, accuracy: 0, altAccuracy: 0, timestamp: Date.now() }; });
         if (points.length < 2) continue;
-        const isActuallyGreen = !!p.getElementsByTagName("Polygon")[0];
-        const record: SavedRecord = { id: Math.random().toString(36).substr(2, 9), date: Date.now(), type: isActuallyGreen ? 'Green' : 'Track', points, holeNumber: extractedHole || undefined, primaryValue: 'Imported', secondaryValue: 'KML Data' };
-        if (isActuallyGreen) { record.primaryValue = `${Math.round(calculateArea(points) * (units === 'Yards' ? 1.196 : 1))}${units === 'Yards' ? 'yd²' : 'm²'}`; }
+        
+        const first = points[0];
+        const last = points[points.length - 1];
+        const distToStart = calculateDistance(first, last);
+        const isActuallyGreen = !!p.getElementsByTagName("Polygon")[0] || descStr.includes("Type: Green") || nameStr.startsWith("Green") || distToStart < 5;
+        
+        const record: SavedRecord = { id: Math.random().toString(36).substr(2, 9), date: Date.now(), type: isActuallyGreen ? 'Green' : 'Track', points, holeNumber: extractedHole || undefined, primaryValue: fileName.substring(0, 6) + "...", secondaryValue: 'KML Data' };
         newItems.push(record);
       }
       setHistory(prev => [...newItems, ...prev]);
@@ -1259,42 +1262,242 @@ const App: React.FC = () => {
             {(pos || viewingRecord) ? (
               <MapContainer center={[0, 0]} zoom={2} className="h-full w-full" zoomControl={false} attributionControl={false} style={{ backgroundColor: '#020617' }}>
                 <TileLayer url={mapStyle === 'Street' ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"} maxZoom={22} maxNativeZoom={19} />
-                <MapController pos={pos} active={trkActive || mapActive} mapPoints={mapPoints} completed={mapCompleted} viewingRecord={viewingRecord} mode={view} />
+                <MapController pos={pos} active={trkActive || mapActive} mapPoints={mapPoints} completed={mapCompleted} viewingRecord={viewingRecord} mode={view} trkPoints={trkPoints} />
                 <AccuracyOvals pos={pos} anchor={currentAnchor} gender={ratingGender} active={view === 'track' && trkActive} mode={ovalMode} />
                 {pos && !viewingRecord && (<><Circle center={[pos.lat, pos.lng]} radius={pos.accuracy} pathOptions={{ color: 'transparent', fillColor: getAccuracyColor(pos.accuracy), fillOpacity: 1, weight: 0 }} /><CircleMarker center={[pos.lat, pos.lng]} radius={7} pathOptions={{ color: '#fff', fillColor: '#10b981', fillOpacity: 1, weight: 2.5 }} /></>)}
                 {view === 'track' && (trkActive || viewingRecord) && (
-                    <Polyline positions={(viewingTrackProfile === 'Scratch' && effectiveMetrics.effectivePaths.scratch.length > 0) ? effectiveMetrics.effectivePaths.scratch.map(p => [p.lat, p.lng]) : (viewingTrackProfile === 'Bogey' && effectiveMetrics.effectivePaths.bogey.length > 0) ? effectiveMetrics.effectivePaths.bogey.map(p => [p.lat, p.lng]) : (trkActive ? [...trkPoints, ...(pos?[pos]:[])] : (viewingRecord?.raterPathPoints || [])).map(p => [p.lat, p.lng])} color="#3b82f6" weight={5} />
+                    <>
+                      {/* Pivots markers rendering */}
+                      {(trkActive ? currentPivots : (viewingRecord?.pivotPoints || [])).map((piv, idx) => (
+                        <CircleMarker 
+                          key={`piv-${idx}`} 
+                          center={[piv.point.lat, piv.point.lng]} 
+                          radius={6} 
+                          pathOptions={{ 
+                            fillColor: piv.type === 'common' ? '#3b82f6' : (piv.type === 'scratch_cut' ? '#10b981' : '#facc15'),
+                            color: '#fff',
+                            weight: 2,
+                            fillOpacity: 1
+                          }} 
+                        />
+                      ))}
+                      
+                      {/* Conditional path rendering based on divergence */}
+                      {(() => {
+                        const scratchPath = effectiveMetrics.effectivePaths.scratch;
+                        const bogeyPath = effectiveMetrics.effectivePaths.bogey;
+                        const raterWalk = trkActive ? [...trkPoints, ...(pos?[pos]:[])] : (viewingRecord?.raterPathPoints || []);
+                        
+                        if (viewingTrackProfile === 'Rater\'s Walk') {
+                          return <Polyline positions={raterWalk.map(p => [p.lat, p.lng])} color="#3b82f6" weight={5} />;
+                        }
+                        
+                        if (!pathsDiffer) {
+                          return <Polyline positions={scratchPath.map(p => [p.lat, p.lng])} color="#3b82f6" weight={5} />;
+                        } else {
+                          return (
+                            <>
+                              <Polyline positions={scratchPath.map(p => [p.lat, p.lng])} color="#10b981" weight={5} />
+                              <Polyline positions={bogeyPath.map(p => [p.lat, p.lng])} color="#facc15" weight={5} />
+                            </>
+                          );
+                        }
+                      })()}
+                    </>
                 )}
                 {view === 'green' && (viewingRecord?.points || mapPoints).length > 1 && (
-                  <Polygon positions={(viewingRecord?.points || mapPoints).map(p => [p.lat, p.lng])} fillColor="#10b981" fillOpacity={0.1} color="#10b981" weight={4} />
+                  <>
+                    <Polygon positions={(viewingRecord?.points || mapPoints).map(p => [p.lat, p.lng])} fillColor="#10b981" fillOpacity={0.1} weight={0} />
+                    {(viewingRecord?.points || mapPoints).map((p, i, arr) => {
+                      if (i === 0) return null;
+                      return <Polyline key={`seg-${i}`} positions={[[arr[i-1].lat, arr[i-1].lng], [p.lat, p.lng]]} color={p.type === 'bunker' ? "#fb923c" : "#10b981"} weight={4} />;
+                    })}
+                    {(mapCompleted || (viewingRecord && viewingRecord.type === 'Green')) && (viewingRecord?.points || mapPoints).length > 2 && (
+                      <Polyline positions={[[(viewingRecord?.points || mapPoints)[(viewingRecord?.points || mapPoints).length - 1].lat, (viewingRecord?.points || mapPoints)[(viewingRecord?.points || mapPoints).length - 1].lng], [(viewingRecord?.points || mapPoints)[0].lat, (viewingRecord?.points || mapPoints)[0].lng]]} color={(viewingRecord?.points || mapPoints)[0].type === 'bunker' ? "#fb923c" : "#10b981"} weight={4} />
+                    )}
+                    {(mapCompleted || (viewingRecord && viewingRecord.type === 'Green')) && analysis?.shape && (
+                      <>
+                        {(() => {
+                          const s = analysis.shape as any;
+                          if (s.anomalousResult) {
+                            return (
+                              <>
+                                <Polyline positions={[[s.pA.lat, s.pA.lng], [s.pB.lat, s.pB.lng]]} color="#93c5fd" weight={2} dashArray="5, 5" />
+                                <Polyline positions={s.anomalousResult.spine.map((p: any) => [p.lat, p.lng])} color="#60a5fa" weight={3} dashArray="2, 4" />
+                                {s.anomalousResult.widths.map((w: any, idx: number) => (
+                                  <Polyline key={`anom-w-${idx}`} positions={[[w.p1.lat, w.p1.lng], [w.p2.lat, w.p2.lng]]} color={w.color} weight={2} dashArray="4, 2" />
+                                ))}
+                              </>
+                            );
+                          } else if (s.isLShape && s.s1 && s.s2) {
+                            return (
+                              <>
+                                <Polyline positions={[[s.s1.pA.lat, s.s1.pA.lng], [s.s1.pB.lat, s.s1.pB.lng]]} color="#3b82f6" weight={2} dashArray="5, 5" />
+                                <Polyline positions={[[s.s1.pC.lat, s.s1.pC.lng], [s.s1.pD.lat, s.s1.pD.lng]]} color="#facc15" weight={2} dashArray="5, 5" />
+                                <Polyline positions={[[s.s2.pA.lat, s.s2.pA.lng], [s.s2.pB.lat, s.s2.pB.lng]]} color="#f472b6" weight={2} dashArray="5, 5" />
+                                <Polyline positions={[[s.s2.pC.lat, s.s2.pC.lng], [s.s2.pD.lat, s.s2.pD.lng]]} color="#10b981" weight={2} dashArray="5, 5" />
+                              </>
+                            );
+                          } else {
+                            return (
+                              <>
+                                {s.pA && s.pB && <Polyline positions={[[s.pA.lat, s.pA.lng], [s.pB.lat, s.pB.lng]]} color="#3b82f6" weight={2} dashArray="5, 5" />}
+                                {s.isInconsistent ? (
+                                  <>
+                                    {s.pC1 && s.pD1 && <Polyline positions={[[s.pC1.lat, s.pC1.lng], [s.pD1.lat, s.pD1.lng]]} color="#facc15" weight={2} dashArray="5, 5" />}
+                                    {s.pC3 && s.pD3 && <Polyline positions={[[s.pC3.lat, s.pC3.lng], [s.pD3.lat, s.pD3.lng]]} color="#10b981" weight={2} dashArray="5, 5" />}
+                                  </>
+                                ) : (
+                                  s.pC && s.pD && <Polyline positions={[[s.pC.lat, s.pC.lng], [s.pD.lat, s.pD.lng]]} color="#facc15" weight={2} dashArray="5, 5" />
+                                )}
+                              </>
+                            );
+                          }
+                        })()}
+                      </>
+                    )}
+                  </>
                 )}
               </MapContainer>
             ) : <div className="flex items-center justify-center h-full w-full text-white/50 animate-pulse">Waiting for GPS signal...</div>}
           </main>
           <div className="absolute inset-x-0 bottom-0 z-[1000] p-4 pointer-events-none flex flex-col gap-2 items-center pb-12">
             <div className="flex flex-col gap-2 w-full max-w-[340px]">
-              <div className="pointer-events-auto bg-slate-900/95 border border-white/20 rounded-[2.8rem] px-6 py-3 w-full shadow-2xl backdrop-blur-md">
+              <div className="pointer-events-auto bg-slate-900/95 border border-white/20 rounded-[2.8rem] px-6 py-4 w-full shadow-2xl backdrop-blur-md">
                 {view === 'track' ? (
-                  <>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center flex flex-col items-center">
+                  <div className="flex flex-col gap-3">
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="col-span-2 text-center flex flex-col items-center">
                         <span className="text-[10px] font-bold text-white/40 uppercase block mb-2 leading-none">DISTANCE</span>
                         <div className="flex flex-col gap-1">
-                            <div className="text-4xl font-bold text-emerald-400 tabular-nums leading-none">S: {effectiveMetrics.distScratch.toFixed(1)}<span className="text-[10px] ml-1 opacity-40 uppercase">{units === 'Yards' ? 'YD' : 'M'}</span></div>
-                            <div className="text-4xl font-bold text-yellow-400 tabular-nums leading-none">B: {effectiveMetrics.distBogey.toFixed(1)}<span className="text-[10px] ml-1 opacity-40 uppercase">{units === 'Yards' ? 'YD' : 'M'}</span></div>
+                            <div className="text-4xl font-bold text-emerald-400 tabular-nums leading-none">
+                              S: {effectiveMetrics.distScratch.toFixed(1)}
+                              {effectiveMetrics.sectorScratch !== null && <span className="text-2xl text-white/60 ml-2">/ {effectiveMetrics.sectorScratch.toFixed(1)}</span>}
+                              <span className="text-[10px] ml-1 opacity-40 uppercase">{units === 'Yards' ? 'YD' : 'M'}</span>
+                            </div>
+                            <div className="text-4xl font-bold text-yellow-400 tabular-nums leading-none">
+                              B: {effectiveMetrics.distBogey.toFixed(1)}
+                              {effectiveMetrics.sectorBogey !== null && <span className="text-2xl text-white/60 ml-2">/ {effectiveMetrics.sectorBogey.toFixed(1)}</span>}
+                              <span className="text-[10px] ml-1 opacity-40 uppercase">{units === 'Yards' ? 'YD' : 'M'}</span>
+                            </div>
                         </div>
                       </div>
-                      <div className="text-center border-l border-white/10 flex flex-col items-center justify-center">
+                      <div className="col-span-1 text-center border-l border-white/10 flex flex-col items-center justify-center">
                         <span className="text-[10px] font-bold text-white/40 uppercase block mb-2 leading-none">ELEVATION</span>
                         <div className="text-4xl font-bold text-yellow-400 tabular-nums leading-none tracking-tighter">{`${effectiveMetrics.elevRater > 0 ? '+' : ''}${effectiveMetrics.elevRater.toFixed(1)}`}<span className="text-[10px] ml-0.5 opacity-40 uppercase">{units === 'Yards' ? 'FT' : 'M'}</span></div>
                       </div>
                     </div>
-                  </>
+                    {pos && !viewingRecord && (
+                      <div className="flex justify-between pt-2 border-t border-white/10 px-2">
+                        <div className="flex items-center gap-1.5">
+                          <div className={`w-1.5 h-1.5 rounded-full ${pos.accuracy < 2 ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`}></div>
+                          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">GNSS: {pos.accuracy.toFixed(1)}m</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className={`w-1.5 h-1.5 rounded-full ${getVerticalMethod(pos.altAccuracy, pos.alt) === 'Barometric' ? 'bg-blue-500' : 'bg-emerald-500'}`}></div>
+                          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">{getVerticalMethod(pos.altAccuracy, pos.alt)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <div className="grid grid-cols-3 gap-2 mb-2 text-center">
-                    <div><span className="text-white/40 text-[8px] font-bold uppercase block tracking-widest">Sq. Area</span><div className="text-2xl font-bold text-emerald-400 tabular-nums">{Math.round((analysis?.area || 0) * (units === 'Yards' ? 1.196 : 1))}</div></div>
-                    <div><span className="text-white/40 text-[8px] font-bold uppercase block tracking-widest">Perimeter</span><div className="text-2xl font-bold text-blue-400 tabular-nums">{((analysis?.perimeter || 0) * distMult).toFixed(1)}</div></div>
-                    <div><span className="text-white/40 text-[8px] font-bold uppercase block tracking-widest">Bunker%</span><div className={`text-2xl font-bold ${getBunkerPercentageColor(analysis?.bunkerPct)} tabular-nums`}>{analysis?.bunkerPct || 0}%</div></div>
+                  <div className="flex flex-col items-center">
+                    <div className="grid grid-cols-3 gap-2 text-center mb-4 w-full">
+                      <div><span className="text-white/40 text-[8px] font-bold uppercase block tracking-widest mb-1">Sq. Area</span><div className="text-xl font-bold text-emerald-400 tabular-nums">{Math.round((analysis?.area || 0) * (units === 'Yards' ? 1.196 : 1))}<span className="text-[8px] ml-0.5 opacity-40 uppercase">{units === 'Yards' ? 'YD²' : 'M²'}</span></div></div>
+                      <div><span className="text-white/40 text-[8px] font-bold uppercase block tracking-widest mb-1">Perimeter</span><div className="text-xl font-bold text-blue-400 tabular-nums">{((analysis?.perimeter || 0) * distMult).toFixed(1)}<span className="text-[8px] ml-0.5 opacity-40 uppercase">{units === 'Yards' ? 'YD' : 'M'}</span></div></div>
+                      <div><span className="text-white/40 text-[8px] font-bold uppercase block tracking-widest mb-1">Bunker%</span><div className={`text-xl font-bold ${getBunkerPercentageColor(analysis?.bunkerPct)} tabular-nums`}>{analysis?.bunkerPct || 0}%</div></div>
+                    </div>
+                    
+                    <div className="border-t border-white/10 pt-3 flex flex-col items-center w-full">
+                      <div className="flex items-baseline gap-1 mb-0.5">
+                        <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">EGD:</span>
+                        <span className="text-[10px] font-medium text-white/60 uppercase tracking-widest">{(analysis?.shape as any)?.method || '--'}</span>
+                      </div>
+
+                      <div className="text-5xl font-bold tabular-nums tracking-tighter my-1 text-center flex items-baseline justify-center">
+                        {(() => {
+                          const s = analysis?.shape as any;
+                          const m = units === 'Yards' ? 1 : (1 / 1.09361);
+                          if (s?.isLShape && !s?.isAnomalous) {
+                            return (
+                              <>
+                                <span className="text-blue-400">{((s.s1?.egd ?? 0) * m).toFixed(1)}</span>
+                                <span className="text-white/20 mx-1">/</span>
+                                <span className="text-fuchsia-400">{((s.s2?.egd ?? 0) * m).toFixed(1)}</span>
+                              </>
+                            );
+                          }
+                          return <span className="text-yellow-400">{analysis?.egdDisplay || '--'}</span>;
+                        })()}
+                        {analysis?.egdDisplay !== '--' && analysis?.egdDisplay !== '---' && analysis?.egdDisplay !== 'MANUAL' && (
+                          <span className="text-xl ml-1 opacity-50 font-semibold text-white">{units === 'Yards' ? 'YD' : 'M'}</span>
+                        )}
+                      </div>
+
+                      {analysis?.shape && (
+                        <div className="mt-1 flex flex-col items-center w-full">
+                          {(() => {
+                            const s = analysis.shape as any;
+                            const m = units === 'Yards' ? 1 : (1 / 1.09361);
+                            if (s.isAnomalous) {
+                              return (
+                                <div className="flex flex-col items-center gap-1 w-full">
+                                  <div className="flex gap-4 mb-0.5">
+                                    <span className="text-[10px] font-bold uppercase text-blue-400">L(curved): {(s.anomalousResult.curvedLength * m).toFixed(1)}</span>
+                                    <span className="text-[10px] font-bold uppercase text-blue-300">L(straight): {(s.anomalousResult.straightLength * m).toFixed(1)}</span>
+                                  </div>
+                                  <div className="flex gap-4">
+                                    <span className="text-[10px] font-bold uppercase text-orange-400">W1: {(s.anomalousResult.widths[0]?.w * m).toFixed(1)}</span>
+                                    <span className="text-[10px] font-bold uppercase text-yellow-400">W2: {(s.anomalousResult.widths[1]?.w * m).toFixed(1)}</span>
+                                    <span className="text-[10px] font-bold uppercase text-fuchsia-400">W3: {(s.anomalousResult.widths[2]?.w * m).toFixed(1)}</span>
+                                  </div>
+                                </div>
+                              );
+                            } else if (s.isLShape && s.s1 && s.s2) {
+                              return (
+                                <div className="flex flex-col items-center gap-1 w-full mt-1">
+                                  <div className="flex gap-4 border-b border-white/5 pb-1">
+                                    <span className="text-[9px] font-black text-white/30 tracking-widest">PORTION 1:</span>
+                                    <span className="text-[10px] font-bold uppercase text-blue-400">L {(s.s1.L * m).toFixed(1)}</span>
+                                    <span className="text-[10px] font-bold uppercase text-yellow-400">W {(s.s1.W * m).toFixed(1)}</span>
+                                  </div>
+                                  <div className="flex gap-4 pt-1">
+                                    <span className="text-[9px] font-black text-white/30 tracking-widest">PORTION 2:</span>
+                                    <span className="text-[10px] font-bold uppercase text-fuchsia-400">L {(s.s2.L * m).toFixed(1)}</span>
+                                    <span className="text-[10px] font-bold uppercase text-emerald-400">W {(s.s2.W * m).toFixed(1)}</span>
+                                  </div>
+                                </div>
+                              );
+                            } else if (s.isInconsistent) {
+                              return (
+                                <div className="flex flex-wrap justify-center gap-x-3 gap-y-1">
+                                  <span className="text-[10px] font-bold uppercase text-blue-400">L: {(s.L * m).toFixed(1)}</span>
+                                  <span className="text-[10px] font-bold uppercase text-yellow-400">W1: {(s.w1_yds * m).toFixed(1)}</span>
+                                  <span className="text-[10px] font-bold uppercase text-emerald-400">W2: {(s.w3_yds * m).toFixed(1)}</span>
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div className="flex flex-wrap justify-center gap-x-3 gap-y-1">
+                                  <span className="text-[10px] font-bold uppercase text-blue-400">Length: {(s.L * m).toFixed(1)}</span>
+                                  <span className="text-[10px] font-bold uppercase text-yellow-400">Width: {(s.W * m).toFixed(1)}</span>
+                                  <span className="text-[10px] font-bold uppercase text-white/40">Ratio: {s.ratio.toFixed(2)}</span>
+                                </div>
+                              );
+                            }
+                          })()}
+                        </div>
+                      )}
+                    </div>
+
+                    {pos && !viewingRecord && (
+                      <div className="flex justify-center pt-3 mt-3 border-t border-white/10 px-2 w-full">
+                        <div className="flex items-center gap-1.5">
+                          <div className={`w-1.5 h-1.5 rounded-full ${pos.accuracy < 2 ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`}></div>
+                          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">GNSS: {pos.accuracy.toFixed(1)}m</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1310,28 +1513,7 @@ const App: React.FC = () => {
                               <button onClick={() => setHoleNum(h => Math.min(18, h + 1))} className="w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center border border-white/10 active:bg-blue-600 transition-colors"><Plus size={14} /></button>
                             </div>
                           )}
-                          <button onClick={() => { 
-                            if(!trkActive) { setTrkActive(true); setTrkPoints(pos ? [pos] : []); setCurrentPivots([]); } 
-                            else { 
-                              const finalPath = [...trkPoints, pos].filter(Boolean) as GeoPoint[]; 
-                              setTrkPoints(finalPath); 
-                              const calculated = calculateEffectivePathsAndMetrics(finalPath, currentPivots, distMult, elevMult); 
-                              // Fix: Satisfy the SavedRecord interface requirement by adding the missing 'points' property
-                              saveRecord({ 
-                                type: 'Track', 
-                                primaryValue: `S: ${calculated.effectiveDistances.scratch.toFixed(1)} / B: ${calculated.effectiveDistances.bogey.toFixed(1)}`, 
-                                points: finalPath,
-                                raterPathPoints: finalPath, 
-                                pivotPoints: currentPivots, 
-                                genderRated: ratingGender, 
-                                effectiveDistances: calculated.effectiveDistances, 
-                                effectiveElevations: calculated.effectiveElevations, 
-                                effectivePaths: calculated.effectivePaths, 
-                                holeNumber: holeNum 
-                              }); 
-                              setTrkActive(false); 
-                            } 
-                          }} className={`flex-1 h-14 rounded-full font-bold text-xs tracking-[0.2em] uppercase border-2 shadow-xl active:scale-95 ${trkActive ? 'bg-red-600 border-red-500' : 'bg-blue-600 border-blue-500'}`}>{trkActive ? 'STOP TRACK' : 'START TRACK'}</button>
+                          <button onClick={() => { if(!trkActive) { setTrkActive(true); setTrkPoints(pos ? [pos] : []); setCurrentPivots([]); } else { const finalPath = [...trkPoints, pos].filter(Boolean) as GeoPoint[]; setTrkPoints(finalPath); const calculated = calculateEffectivePathsAndMetrics(finalPath, currentPivots, distMult, elevMult); saveRecord({ type: 'Track', primaryValue: `S: ${calculated.effectiveDistances.scratch.toFixed(1)} / B: ${calculated.effectiveDistances.bogey.toFixed(1)}`, points: finalPath, raterPathPoints: finalPath, pivotPoints: currentPivots, genderRated: ratingGender, effectiveDistances: calculated.effectiveDistances, effectiveElevations: calculated.effectiveElevations, effectivePaths: calculated.effectivePaths, holeNumber: holeNum }); setTrkActive(false); } }} className={`flex-1 h-14 rounded-full font-bold text-xs tracking-[0.2em] uppercase border-2 shadow-xl active:scale-95 ${trkActive ? 'bg-red-600 border-red-500' : 'bg-blue-600 border-blue-500'}`}>{trkActive ? 'STOP TRACK' : 'START TRACK'}</button>
                           {trkActive && <button onClick={() => setShowPivotMenu(true)} className="flex-1 h-14 rounded-full font-bold text-xs tracking-[0.1em] uppercase border-2 bg-slate-800 border-blue-500 text-blue-100 shadow-xl active:scale-95">PIVOT ({currentPivots.length})</button>}
                         </div>
                     ) : (
