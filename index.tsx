@@ -208,7 +208,7 @@ The App is able to display the 'Accuracy Pattern' in realtime for Scratch and Bo
     title: "Recording Bunkers",
     color: "text-orange-400",
     icon: <AlertCircle className="text-orange-400" />,
-    content: "While walking the green edge, hold the 'Bunker' button when passing a bunker segment and release when you get to the end. This marks those points as sand. The panel will show what percentage of the green's perimeter is guarded by sand."
+    content: "While walking the green edge, tap the 'Bunker' button when passing a greenside bunker segment and tap it again when you get to the end. This marks those points as sand. The panel will show what percentage of the green's perimeter is guarded by sand."
   },
   {
     title: "Effective Green Diameter",
@@ -772,11 +772,11 @@ const MapController: React.FC<{
   const isUserInteracting = useRef(false);
   const lastViewId = useRef<string | null>(null);
   const hasInitialLock = useRef(false);
+  const prevPointsLength = useRef(0);
 
   useMapEvents({
     dragstart: () => { isUserInteracting.current = true; },
-    zoomstart: () => { isUserInteracting.current = true; },
-    touchstart: () => { isUserInteracting.current = true; }
+    zoomstart: () => { isUserInteracting.current = true; }
   });
 
   useEffect(() => {
@@ -788,7 +788,16 @@ const MapController: React.FC<{
   }, [viewingRecord, active]);
 
   useEffect(() => {
+    const currentPts = mode === 'green' ? mapPoints : trkPoints;
+    
+    // Reset interaction lock if points were added (e.g. pivot inserted)
+    if (currentPts.length > prevPointsLength.current) {
+      isUserInteracting.current = false;
+    }
+    prevPointsLength.current = currentPts.length;
+
     if (isUserInteracting.current) return;
+    
     if (viewingRecord) {
       const pts = viewingRecord.type === 'Green' ? viewingRecord.points : viewingRecord.raterPathPoints;
       if (pts && pts.length > 0) {
@@ -801,12 +810,18 @@ const MapController: React.FC<{
     } else if (!active && mode === 'track' && trkPoints.length > 1) {
       const bounds = L.latLngBounds(trkPoints.map(p => [p.lat, p.lng]));
       map.fitBounds(bounds, { padding: [40, 40], paddingBottomRight: [40, 280], animate: true });
+    } else if (active && pos) {
+      if (currentPts.length >= 1) {
+        const bounds = L.latLngBounds([...currentPts, pos].map(p => [p.lat, p.lng]));
+        map.fitBounds(bounds, { padding: [80, 80], paddingBottomRight: [40, 280], animate: true, maxZoom: 19 });
+      } else {
+        map.setView([pos.lat, pos.lng], 19, { animate: false });
+      }
+      hasInitialLock.current = true;
     } else if (pos) {
       if (!hasInitialLock.current) {
         map.setView([pos.lat, pos.lng], 19, { animate: true });
         hasInitialLock.current = true;
-      } else if (active) {
-        map.setView([pos.lat, pos.lng], 19, { animate: false });
       }
     }
   }, [pos, active, map, completed, mapPoints, viewingRecord, mode, trkPoints]);
@@ -1240,11 +1255,11 @@ const App: React.FC = () => {
       ) : (
         <div className="flex-1 flex flex-col relative animate-in slide-in-from-right duration-300">
           <div className="absolute top-0 left-0 right-0 z-[1000] p-4 flex justify-between pointer-events-none">
-            <button onClick={() => { setView('landing'); setTrkActive(false); setMapActive(false); setViewingRecord(null); setShowPivotMenu(false); }} className="pointer-events-auto bg-slate-800 border border-white/20 px-5 py-3 rounded-full flex items-center gap-2 shadow-2xl active:scale-95 transition-all">
+            <button onClick={() => { setView('landing'); setTrkActive(false); setMapActive(false); setViewingRecord(null); setShowPivotMenu(false); setTrkPoints([]); setCurrentPivots([]); }} className="pointer-events-auto bg-slate-800 border border-white/20 px-5 py-3 rounded-full flex items-center gap-2 shadow-2xl active:scale-95 transition-all">
               <ChevronLeft size={18} className="text-emerald-400" /><span className="text-[11px] uppercase tracking-widest font-semibold text-blue-500">Home</span>
             </button>
             <div className="flex gap-2 pointer-events-auto">
-              {((view === 'track' && trkActive) || (view === 'green' && mapActive) || viewingRecord) && (
+              {((view === 'track' && (trkActive || trkPoints.length > 0)) || (view === 'green' && mapActive) || viewingRecord) && (
                 <div className="bg-slate-800 border border-white/20 w-[46px] h-[46px] rounded-full flex items-center justify-center shadow-2xl"><span className="text-xl font-bold text-blue-400 tabular-nums">{holeNum}</span></div>
               )}
               {view === 'track' && (
@@ -1252,6 +1267,11 @@ const App: React.FC = () => {
                   {ovalMode === 'off' && <CircleOff size={20} className="text-slate-400" />}
                   {ovalMode === 'scratch' && <span className="text-emerald-400 font-bold text-2xl flex items-center justify-center leading-none">S</span>}
                   {ovalMode === 'bogey' && <span className="text-yellow-400 font-bold text-2xl flex items-center justify-center leading-none">B</span>}
+                </button>
+              )}
+              {view === 'track' && (
+                <button onClick={() => setViewingTrackProfile(p => p === 'Rater\'s Walk' ? 'Scratch' : 'Rater\'s Walk')} className="bg-slate-800 border border-white/20 rounded-full shadow-2xl active:scale-90 flex items-center justify-center w-[46px] h-[46px]">
+                  {viewingTrackProfile === 'Rater\'s Walk' ? <Eye size={20} className="text-rose-500" /> : <Zap size={20} className="text-emerald-400" />}
                 </button>
               )}
               <button onClick={() => setUnits(u => u === 'Yards' ? 'Metres' : 'Yards')} className="bg-slate-800 border border-white/20 p-3.5 rounded-full text-emerald-400 shadow-2xl active:scale-90"><Ruler size={20} /></button>
@@ -1265,10 +1285,10 @@ const App: React.FC = () => {
                 <MapController pos={pos} active={trkActive || mapActive} mapPoints={mapPoints} completed={mapCompleted} viewingRecord={viewingRecord} mode={view} trkPoints={trkPoints} />
                 <AccuracyOvals pos={pos} anchor={currentAnchor} gender={ratingGender} active={view === 'track' && trkActive} mode={ovalMode} />
                 {pos && !viewingRecord && (<><Circle center={[pos.lat, pos.lng]} radius={pos.accuracy} pathOptions={{ color: 'transparent', fillColor: getAccuracyColor(pos.accuracy), fillOpacity: 1, weight: 0 }} /><CircleMarker center={[pos.lat, pos.lng]} radius={7} pathOptions={{ color: '#fff', fillColor: '#10b981', fillOpacity: 1, weight: 2.5 }} /></>)}
-                {view === 'track' && (trkActive || viewingRecord) && (
+                {view === 'track' && (trkActive || viewingRecord || trkPoints.length > 1) && (
                     <>
                       {/* Pivots markers rendering */}
-                      {(trkActive ? currentPivots : (viewingRecord?.pivotPoints || [])).map((piv, idx) => (
+                      {(trkActive || (!viewingRecord && trkPoints.length > 0) ? currentPivots : (viewingRecord?.pivotPoints || [])).map((piv, idx) => (
                         <CircleMarker 
                           key={`piv-${idx}`} 
                           center={[piv.point.lat, piv.point.lng]} 
@@ -1286,14 +1306,14 @@ const App: React.FC = () => {
                       {(() => {
                         const scratchPath = effectiveMetrics.effectivePaths.scratch;
                         const bogeyPath = effectiveMetrics.effectivePaths.bogey;
-                        const raterWalk = trkActive ? [...trkPoints, ...(pos?[pos]:[])] : (viewingRecord?.raterPathPoints || []);
+                        const raterWalk = trkActive ? [...trkPoints, ...(pos?[pos]:[])] : (viewingRecord ? (viewingRecord.raterPathPoints || []) : trkPoints);
                         
                         if (viewingTrackProfile === 'Rater\'s Walk') {
-                          return <Polyline positions={raterWalk.map(p => [p.lat, p.lng])} color="#3b82f6" weight={5} />;
+                          return <Polyline positions={raterWalk.map(p => [p.lat, p.lng])} color="#ef4444" weight={5} />;
                         }
                         
                         if (!pathsDiffer) {
-                          return <Polyline positions={scratchPath.map(p => [p.lat, p.lng])} color="#3b82f6" weight={5} />;
+                          return <Polyline positions={scratchPath.map(p => [p.lat, p.lng])} color="#ef4444" weight={5} />;
                         } else {
                           return (
                             <>
@@ -1502,7 +1522,7 @@ const App: React.FC = () => {
                 )}
               </div>
               <div className="pointer-events-auto flex flex-col gap-2 w-full">
-                {viewingRecord ? <button onClick={() => { setViewingRecord(null); setView('landing'); }} className="h-14 bg-slate-800 border-2 border-white/10 rounded-full font-bold text-xs tracking-[0.2em] uppercase text-white shadow-xl active:scale-95 transition-all">Close Viewer</button> : (
+                {viewingRecord ? <button onClick={() => { setViewingRecord(null); setView('landing'); setTrkPoints([]); setCurrentPivots([]); }} className="h-14 bg-slate-800 border-2 border-white/10 rounded-full font-bold text-xs tracking-[0.2em] uppercase text-white shadow-xl active:scale-95 transition-all">Close Viewer</button> : (
                   <>
                     {view === 'track' ? (
                         <div className="flex gap-2 w-full">
@@ -1526,7 +1546,7 @@ const App: React.FC = () => {
                             </div>
                           )}
                         <button onClick={() => { if(mapActive) handleFinalizeGreen(); else { setMapPoints(pos?[pos]:[]); setMapActive(true); setMapCompleted(false); } }} className={`flex-1 h-14 rounded-full font-bold text-xs tracking-[0.2em] uppercase border-2 shadow-xl active:scale-95 ${mapActive ? 'bg-blue-600 border-blue-500' : 'bg-emerald-600 border-emerald-500'}`}>{mapActive ? 'CLOSE' : 'START GREEN'}</button>
-                        {mapActive && <button onPointerDown={() => setIsBunker(true)} onPointerUp={() => setIsBunker(false)} onPointerLeave={() => setIsBunker(false)} className={`flex-1 h-14 rounded-full font-bold text-xs tracking-[0.1em] uppercase border-2 transition-all shadow-xl ${isBunker ? 'bg-orange-600 border-orange-500 scale-105' : 'bg-slate-800 border-orange-500/50 text-orange-400'}`}>BUNKER (HOLD)</button>}
+                        {mapActive && <button onClick={() => setIsBunker(!isBunker)} className={`flex-1 h-14 rounded-full font-bold text-xs tracking-[0.1em] uppercase border-2 transition-all shadow-xl ${isBunker ? 'bg-orange-600 border-orange-500 scale-105' : 'bg-slate-800 border-orange-500/50 text-orange-400'}`}>BUNKER</button>}
                       </div>
                     )}
                   </>
