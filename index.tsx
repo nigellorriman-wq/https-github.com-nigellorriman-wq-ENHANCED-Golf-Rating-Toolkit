@@ -31,7 +31,9 @@ import {
   Circle as CircleIcon,
   CircleOff,
   CircleDot,
-  Crosshair
+  Crosshair,
+  Route,
+  Waypoints
 } from 'lucide-react';
 
 /** --- TYPES --- **/
@@ -1271,7 +1273,7 @@ const App: React.FC = () => {
               )}
               {view === 'track' && (
                 <button onClick={() => setViewingTrackProfile(p => p === 'Rater\'s Walk' ? 'Scratch' : 'Rater\'s Walk')} className="bg-slate-800 border border-white/20 rounded-full shadow-2xl active:scale-90 flex items-center justify-center w-[46px] h-[46px]">
-                  {viewingTrackProfile === 'Rater\'s Walk' ? <Eye size={20} className="text-rose-500" /> : <Zap size={20} className="text-emerald-400" />}
+                  {viewingTrackProfile === 'Rater\'s Walk' ? <Route size={20} className="text-rose-500" /> : <Waypoints size={20} className="text-emerald-400" />}
                 </button>
               )}
               <button onClick={() => setUnits(u => u === 'Yards' ? 'Metres' : 'Yards')} className="bg-slate-800 border border-white/20 p-3.5 rounded-full text-emerald-400 shadow-2xl active:scale-90"><Ruler size={20} /></button>
