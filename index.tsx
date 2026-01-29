@@ -191,6 +191,21 @@ const USER_MANUAL = [
     ) 
   },
   {
+    title: "Pivots and tracks",
+    color: "text-rose-700",
+ icon: (
+    <div className="flex gap-0.5">
+      <Route size={18} className="text-rose-500" />
+      <Waypoints size={18} className="text-emerald-500" />
+    </div>
+  ),
+    content: (
+      <>
+The App is able to toggle the display between the actual route through all of the pivot points, or  draw separate lines for both Scratch and Bogey players, through their respective pivots. Click the waypoint button to switch between the two displays and toggle between Scratch and Bogey.
+      </>
+    )
+  },
+  {
     title: "Accuracy Pattern",
     color: "text-orange-400",
     icon: <Crosshair className="text-orange-400" />,
