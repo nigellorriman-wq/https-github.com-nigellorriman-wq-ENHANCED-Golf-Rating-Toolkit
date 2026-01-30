@@ -157,7 +157,7 @@ const USER_MANUAL = [
     icon: <BookOpen className="text-white" />,
     content: (
       <>
-        Scottish Golf <span className="text-blue-500 font-black">Course Rating Toolkit</span> is designed to provide an alternative to roadwheels and barometers when rating a course. Ensure 'High Accuracy' location is enabled on your device. For best results, keep the app active and in-hand while walking. The App is web-based, so an internet connection is required to launch. A trick is to open the app where you have Internet, open the 'Distance Tracker' section and zoom out so you see the whole of the course you are working on. This should cache the images or maps locally, so you can still see them when Internet is lost. But if you lose connection the App still works, though you may not see the background mapping.
+        Scottish Golf <span className="text-blue-500 font-black">Course Rating Toolkit</span> is designed to provide an alternative to roadwheels and barometers when rating a course. Ensure 'High Accuracy' location is enabled on your device. For best results, keep the App active and in-hand while walking. The App is web-based, so an internet connection is required to launch. A trick is to open the App where you have Internet, open the 'Distance Tracker' section and zoom out so you see the whole of the course you are working on. This should cache the images or maps locally, so you can still see them when Internet is lost. But if you lose connection the App still works, though you may not see the background mapping.
       </>
     )
   },
@@ -177,14 +177,14 @@ const USER_MANUAL = [
     icon: <Navigation2 className="text-blue-400" />,
     content: (
       <>
-<p>This menu calculates distances and altitude change from tee to each landing zone for Scratch and Bogey players (the players). In addition, it displays the effective playing length of dogleg holes.</p>
-<p>On the home screen you can select whether you will be rating for Men or Women. This selection has no impact on the results, but will mark the generated hole track files for archiving and re-loading.</p>
+<p>This menu calculates distances and altitude change from tee to each landing zone for Scratch and Bogey players. In addition, it displays the effective playing length of dogleg holes.</p>
+<p>On the home screen you can select whether you will be rating for Men or Women. This selection has no impact on the results, but will mark the generated hole track files for archiving and re-loading and display the shot accuracy (see below).</p>
 <p>Stand on the tee you are using to measure from and Tap 'Start Track' when you are ready to start tracking the distance.</p>
 <p>Horizontal and vertical distances are displayed in real-time. If you made a mistake and began at the wrong place, select “Stop Track” to start over.</p>
 <p>Two distances are shown S: for scratch and B: for bogey. The two will only differ if the line that each takes on a hole are different. On dogleg holes, a scratch golfer may be able to cut the corner, so their pivot point will be different to the bogey player.</p>
 <p>When you reach the first pivot, select ‘pivot’ and choose which (or both) players it refers to. If it does not apply to both, then from this point you will see two track lines and distances – one through the pivot and the other in a straight line from the tee. As you progress down the hole you can select pivots for each player.</p>
 <p>Both players’ tracks will end at the front of the green when you hit “Stop Track” and you can note down the two distances and the level difference between tee and green.</p>
-<p>As soon as you press “Stop Track” no more lines will be drawn, the location pin continue to follow you and the track record for that hole will appear at the bottom of the Home screen for export or review.</p>
+<p>As soon as you press “Stop Track” no more lines will be drawn, the location pin will continue to follow you and the track record for that hole will appear at the bottom of the Home screen for export or review.</p>
 <p>Notes: You can create a maximum of 3 pivots for each player on each hole. Total distance and elevation change are calculated from the start through all pivots to your current position. GNSS (GPS) is really only accurate to 2m at best, so keep an eye on the Horiz. value and the indicative coloured circle around the current location. It shows you the absolute positioning accuracy of the GPS, however, don't confuse this with the accuracy of distance measurements. They will always be better than this as they are relative to each other.</p>
 <p>If your device does not have a barometer sensor (see the elevation method displayed below the elevation value), then you may still need to use a barometer. Refer to section on “Sensor Diagnostics”, below for details.</p>
       </>
@@ -201,7 +201,7 @@ const USER_MANUAL = [
   ),
     content: (
       <>
-The App is able to toggle the display between the actual route through all of the pivot points, or  draw separate lines for both Scratch and Bogey players, through their respective pivots. Click the waypoint button to switch between the two displays and toggle between Scratch and Bogey.
+The App is able to toggle the display between the actual route through all of the pivot points, or draw separate lines for both Scratch and Bogey players, through their respective pivots. Click the waypoint button to switch between the two displays and toggle between Scratch and Bogey.
       </>
     )
   },
